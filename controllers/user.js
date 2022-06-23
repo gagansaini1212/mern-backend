@@ -34,3 +34,21 @@ exports.getUser = (req, res) => {
 //     res.json(users);
 //   });
 // };
+
+exports.updateUser = (req, res) => {
+  User.findByIdAndUpdate(
+    { _id: req.profile._id },
+    { $set: req.body },
+    { new: true, useFindAndModify: false },
+    (err, user) => {
+      if (err || !user) {
+        return res.status(400).json({
+          error: 'You are not authorize to update this user',
+        });
+      }
+      user.salt = undefined;
+      user.encry_password = undefined;
+      res.json(user);
+    },
+  );
+};
