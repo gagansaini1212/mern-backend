@@ -44,7 +44,7 @@ exports.updateCategory = (req, res) => {
   // getting category from middleware getCategoryById --> 11
   const category = req.category;
   // then updaing that category name here
-  category.name = req.category.name;
+  category.name = req.body.name;
   category.save((err, updatedCategory) => {
     if (err) {
       return res.status(400).json({
