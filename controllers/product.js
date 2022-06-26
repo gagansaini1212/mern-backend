@@ -3,6 +3,7 @@ const _ = require('lodash');
 const fs = require('fs');
 
 const Product = require('../models/product');
+const { sortBy } = require('lodash');
 
 exports.getProductById = (req, res, next, id) => {
   Product.findById(id)
@@ -129,5 +130,56 @@ exports.deleteProduct = (req, res) => {
       message: 'Product removed successfully!',
       deletedProduct,
     });
+  });
+};
+
+// Product listing
+
+exports.getAllProducts = (req, res) => {
+  let limit = req.query.limit ? parseInt(req.query.limit) : 8;
+  let sortBy = req.query.sortBy ? req.query.sortBy : '_id';
+  Product.find()
+    .select('-photo')
+    .populate('category')
+    .sort([[sortBy, 'asc']])
+    .limit(limit)
+    .exec((err, products) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'No product found',
+        });
+      }
+      res.json(products);
+    });
+};
+
+exports.getAllUniqueCategories = (req, res) => {
+  Product.distinct('category', {}, (err, category) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'No category found',
+      });
+    }
+    res.json(category);
+  });
+};
+
+exports.updateStock = (req, res, next) => {
+  let myOperations = req.body.order.products.map((product) => {
+    return {
+      updateOne: {
+        filter: { _id: product._id },
+        update: { $inc: { stock: -product.count, sold: +product.count } },
+      },
+    };
+  });
+
+  Product.bulkWrite(myOperations, {}, (err, products) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Bulk operation failed',
+      });
+    }
+    next();
   });
 };
