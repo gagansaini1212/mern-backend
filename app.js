@@ -12,6 +12,7 @@ const userRoutes = require('./routes/user');
 const categoryRoutes = require('./routes/category');
 const productRoutes = require('./routes/product');
 const orderRoutes = require('./routes/order');
+const stripeRoutes = require('./routes/stripePayment');
 
 const app = express();
 // DB connetion
@@ -39,9 +40,10 @@ app.use('/api', userRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', productRoutes);
 app.use('/api', orderRoutes);
+app.use('/api', stripeRoutes);
 
 // Port
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8001;
 
 // Starting a server
 app.listen(port, () => {
